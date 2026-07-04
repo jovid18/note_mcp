@@ -10,7 +10,8 @@
     "build": "tsc",
     "dev": "tsx src/server.ts",
     "refresh-cookie": "tsx scripts/refresh-cookie.ts",
-    "status": "tsx scripts/status.ts"
+    "status": "tsx scripts/status.ts",
+    "pull": "tsx scripts/pull.ts"
   },
   "engines": {
     "node": ">=20"

@@ -37,6 +37,12 @@ export interface NoteData {
   name: string | null;
   status: string;
   body: string | null;
+  /** 발행 일시 (ISO, +09:00). 미발행이면 null */
+  publishAt: string | null;
+  /** 생성 일시 (ISO, +09:00) */
+  createdAt: string | null;
+  /** 해시태그 이름 목록 (선행 # 제거) */
+  tags: string[];
 }
 
 export class NoteApiError extends Error {
@@ -140,7 +146,7 @@ export class NoteClient {
     });
   }
 
-  /** 노트 조회 (초안 포함) */
+  /** 노트 조회 (초안 포함). 발행 노트는 draft=false 로 조회. */
   async getNote(key: string, opts: { draft?: boolean } = {}): Promise<NoteData> {
     const draft = opts.draft ?? true;
     const ts = Date.now();
@@ -149,7 +155,21 @@ export class NoteClient {
       `/v3/notes/${key}?draft=${draft}&draft_reedit=false&ts=${ts}`,
     );
     const d = json.data;
-    return { id: d.id, key: d.key, name: d.name, status: d.status, body: d.body };
+    const tags: string[] = Array.isArray(d.hashtag_notes)
+      ? d.hashtag_notes
+          .map((h: any) => String(h?.hashtag?.name ?? "").replace(/^#/, "").trim())
+          .filter(Boolean)
+      : [];
+    return {
+      id: d.id,
+      key: d.key,
+      name: d.name,
+      status: d.status,
+      body: d.body,
+      publishAt: d.publish_at ?? null,
+      createdAt: d.created_at ?? null,
+      tags,
+    };
   }
 
   /** 초안 삭제 */
