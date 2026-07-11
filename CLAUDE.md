@@ -20,6 +20,8 @@ npm run build            # tsc → dist/ (bin: note-mcp = dist/src/server.js)
 npm run status           # 세션 쿠키로 인증 상태만 빠르게 확인
 npm run refresh-cookie   # Chrome에서 note 세션 쿠키 추출 → .env 갱신 (macOS 전용)
 npm run pull -- <url>    # note 글 URL → content/YYYY-MM-DD.md 로 내려받기 (부트스트랩용, /note-pull 스킬이 호출)
+                         # --dir <path>로 출력 디렉토리만 변경 가능 (파일명 날짜 로직은 유지).
+                         # 일본어 일기는 ../kaiwa-lab/diary 로 pull하는 것이 현재 표준 (kaiwa-lab의 /note-pull 스킬 참조)
 ```
 
 테스트 러너/린터는 아직 없음. 검증은 `npm run status`(인증)와 MCP 도구 `note_preview`(변환 dry-run, 쓰기 없음)로 수동으로 함.

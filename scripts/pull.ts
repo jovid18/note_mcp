@@ -10,6 +10,7 @@
  *   npm run pull -- <url> --date 2026-07-02      # 파일명 날짜 강제
  *   npm run pull -- <url> --force                # 기존 파일 덮어쓰기
  *   npm run pull -- <url> --out content/foo.md   # 출력 경로 강제
+ *   npm run pull -- <url> --dir ../kaiwa-lab/diary # 출력 디렉토리만 변경 (파일명 날짜 로직은 유지)
  */
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
@@ -22,6 +23,7 @@ interface Args {
   url?: string;
   date?: string;
   out?: string;
+  dir?: string;
   force: boolean;
 }
 
@@ -32,6 +34,7 @@ function parseArgs(argv: string[]): Args {
     if (v === "--force") a.force = true;
     else if (v === "--date") a.date = argv[++i];
     else if (v === "--out") a.out = argv[++i];
+    else if (v === "--dir") a.dir = argv[++i];
     else if (!v.startsWith("--") && !a.url) a.url = v;
   }
   return a;
@@ -73,7 +76,7 @@ function resolveDate(args: Args, title: string | null, publishAt: string | null,
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.url) throw new Error("사용법: npm run pull -- <note-url> [--date YYYY-MM-DD] [--force] [--out path]");
+  if (!args.url) throw new Error("사용법: npm run pull -- <note-url> [--date YYYY-MM-DD] [--force] [--out path] [--dir path]");
 
   const cfg = getConfig();
   const client = new NoteClient(requireSessionCookie(cfg));
@@ -88,7 +91,7 @@ async function main() {
 
   const outPath = args.out
     ? resolve(args.out)
-    : join(cfg.contentDir, `${date}.md`);
+    : join(args.dir ? resolve(args.dir) : cfg.contentDir, `${date}.md`);
 
   if (existsSync(outPath) && !args.force) {
     throw new Error(`이미 존재: ${outPath}\n덮어쓰려면 --force, 다른 이름은 --out 사용.`);
